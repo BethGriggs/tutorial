@@ -6,7 +6,7 @@ The workshop will be in two parts:
   1. [Extending an application to leverage cloud capabilities]()
   2. [Tools to accelerate cloud-native development]()
 
-## Part 1: Extending an application to leverage Cloud Capabilities
+## Part 1: Extending an application to leverage cloud capabilities
 
 ### Building a Cloud-Ready Express.js Application
 
@@ -153,8 +153,6 @@ This makes it easy for you to install a number of applications and services into
 
 ### 1. Create your Express.js Application
 
-//TODO: Which application?
-
 Use the following steps to create your Express.js application:
 
 1. Create a directory to host your project
@@ -170,12 +168,16 @@ Use the following steps to create your Express.js application:
    npx express-generator --view=ejs
    npm version 1.0.0
    ```
-   
-   **Note**: `express-generator` still uses `var`.
 
 This has built a simple Express.js application called `nodeserver`, after the name of the directory you are in.
 
-3. Install your applications dependencies and start your application:
+3. Express.js output still uses `var`, so let's update the code syntax using `standard`:
+
+   ```sh
+   npx standard --fix
+   ```
+
+4. Install your applications dependencies and start your application:
 
     ```sh
     npm install
@@ -186,8 +188,6 @@ Your application should now be visible at [http://localhost:3000](http://localho
 
 ### 2. Add Health Checks to your Application
 
-// TODO: Change to not use @cloudnative/health-connect modules and use plain Node.js health checks per reference architecture.
-
 Kubernetes, and a number of other cloud deployment technologies, provide "Health Checking" as a system that allows the cloud deployment technology to monitor the deployed application and to take action should the application fail or report itself as "unhealthy".
 
 The simplest form of Health Check is process level health checking, where Kubernetes checks to see if the application process still exists and restarts the container (and therefore the application process) if it is not. This provides a basic restart capability but does not handle scenarios where the application exists but is un-responsive, or where it would be desirable to restart the application for other reasons.
@@ -196,14 +196,13 @@ The next level of Health Check is HTTP based, where the application exposes a "l
 
 Add a Health Check endpoint to your Express.js application using the following steps:
 
-
 1. Register a Liveness endpoint in `app.js`:
 
    ```js
-   app.use('/healthz', health.LivenessEndpoint(healthcheck));
+   app.get("/healthz", (req, res) => res.status(200).json({ status: "ok" }));
    ```
    
- Add this line after the `app.use('/users', usersRouter);` line but before the 404 catch handler. This adds a `/health` endpoint to your application. As no liveness checks are registered, it will return as status code of 200 OK and a JSON payload of `{"status":"UP","checks":[]}`.
+ Add this line after the `app.use('/users', usersRouter);` line but before the 404 catch handler. This adds a `/healthz` endpoint to your application. As no liveness checks are registered, it will return as status code of 200 OK and a JSON payload of `{"status":"UP","checks":[]}`.
 
 Check that your `livenessProbe` Health Check endpoint is running:
 
@@ -215,9 +214,9 @@ Check that your `livenessProbe` Health Check endpoint is running:
 
 2. Visit the `healthz` endpoint [http://localhost:3000/healthz](http://localhost:3000/healthz).
 
-For information on how to register health/liveness checks, and additional support for start-up, readiness and shutdown checks.
-
-// TODO: mention reference architecture
+For information more information on health/liveness checks, refer to the following:
+ - [NodeShift Reference Architecture - Health Checks](https://github.com/nodeshift/nodejs-reference-architecture/blob/master/docs/operations/healthchecks.md)
+ - [Red Hat Developer Blog on Health Checking] - 
 
 ### 3. Add Metrics to your Application
 
@@ -276,7 +275,7 @@ You can install a local Prometheus server to graph and visualize the data, and a
 
 Before you can deploy your application to Kubernetes, you first need to build your application into a Docker container and produce a Docker image. This packages your application along with all of its dependencies in a ready to run format.
 
-CloudNativeJS provides a "[Docker](https://github.com/CloudNativeJS/docker)" project that provides a number of best-practice Dockerfile templates that can be used to build your Docker container and produce your image.
+NodeShift provides a "[Docker](https://github.com/NodeShift/docker)" project that provides a number of best-practice Dockerfile templates that can be used to build your Docker container and produce your image.
 
 For this workshop, you'll use the `Dockerfile-run` template, which builds a production-ready Docker image for your application.
 
@@ -285,13 +284,13 @@ Build a production Docker image for your Express.js application using the follow
 1. Copy the `Dockerfile-run` template into the root of your project:
 
    ```sh
-   curl -fsSL -o Dockerfile-run https://raw.githubusercontent.com/CloudNativeJS/docker/master/Dockerfile-run
+   curl -fsSL -o Dockerfile-run https://raw.githubusercontent.com/NodeShift/docker/master/Dockerfile-run
    ```
    
 2. Copy the `.dockerignore` file into the root of your project:
 
    ```sh
-   curl -fsSL -o .dockerignore https://raw.githubusercontent.com/CloudNativeJS/docker/master/.dockerignore
+   curl -fsSL -o .dockerignore https://raw.githubusercontent.com/NodeShift/docker/master/.dockerignore
    ```
 
 3. Build the Docker run image for your application:
@@ -332,16 +331,16 @@ In order to deploy your Docker image to Kubernetes you need to supply Kubernetes
 
 Helm charts provide an easy way to package your application with this information. 
 
-CloudNativeJS provides a "[Helm](https://github.com/CloudNativeJS/helm)" project that provides a template best-practice Helm chart template that can be used to package your application for Kubernetes.
+NodeShift provides a "[Helm](https://github.com/NodeShift/helm)" project that provides a template best-practice Helm chart template that can be used to package your application for Kubernetes.
 
 Add a Helm chart for your Express.js application using the following steps:
 
 // TODO: download chart from CNJS once moved 
-
+ 
 1. Download the template Helm chart:
 
    ```sh
-   curl -fsSL -o master.tar.gz https://github.com/CloudNativeJS/helm/archive/master.tar.gz
+   curl -fsSL -o master.tar.gz https://github.com/NodeShift/helm/archive/master.tar.gz
    ```
 
 2. Unzip the downloaded template chart:
